@@ -3,29 +3,28 @@
   <div class="tree-wrapper">
 
         <li v-for="(item, index) in tree.contents" 
-            :key="index"
+            :key="item.name + '-' + index"
             :tabindex="index + 1"
             :autofocus="index==0"
-            @click.stop="close_open_handler(index)"
-            @keydown.enter.stop="close_open_handler(index)"
-            @focus="focus(item)"
+            @click.stop="select_handler(index)"
+            @keydown.enter.stop="select_handler(index)"
         >
             <template v-if="item.type=='file'">
 
-               <File :name="item.name"/>
+               <File :name="item.name" :class="selectedClass(index)"  />
 
             </template>
 
             <template v-else-if="item.type=='link'">
 
-               <Link :name="item.name"/>
+               <Link :name="item.name" :target="item.target" :class="selectedClass(index)"  />
 
             </template>
 
 
-            <div v-else class="tree-item directory-item"> 
+            <div v-else class="directory"> 
 
-                <template v-if="openMap[index]">
+                <template v-if="openedMap[index]">
                   <OpenFolderIcon/>
                 </template>
 
@@ -34,13 +33,16 @@
                 </template>
 
                 <div>{{item.name}}</div>
-
+                  
             </div>
 
+            <ul v-if="openedMap[index]  && item.type == 'directory'" class="sub-tree" >
 
-            <ul v-if="openMap[index]  && item.type == 'directory'" class="sub-tree" >
-
-                <Directory :tree="item" :level="level + 1" />
+                <Directory :tree="item" 
+                           :indexPath="[...indexPath, index]"
+                           :selectedPath="selectedPath"
+                           @select="emitRecursive($event, index)" 
+                />
 
             </ul>
 
@@ -51,9 +53,9 @@
 </template>
 
 
-
-
 <script>
+
+import Vue from 'vue'
 
 import CloseFolderIcon from '/src/components/icons/CloseFolderIcon.vue'
 import OpenFolderIcon from '/src/components/icons/OpenFolderIcon.vue'
@@ -61,17 +63,18 @@ import OpenFolderIcon from '/src/components/icons/OpenFolderIcon.vue'
 import File from './File.vue'
 import Link from './Link.vue'
 
-
-
-
 export default {
 
   name: 'Directory',
 
   props: {
-    tree: Object,
-    level: Number
+
+    tree: Object,       //поддерево, которое рендерится
+    indexPath: Array,   //путь из индексов до этого поддерева, например [2, 4, 5, 0]
+    selectedPath: Array //путь до выбранного элемента
+
   },
+  
 
   components: {
      OpenFolderIcon,
@@ -80,118 +83,129 @@ export default {
      Link
   },
 
-
-
   methods: {
 
-
-    focus(item) {
-      console.log(item)
+    emitRecursive(event, index)  {
+        //передаем путь на выбранном элементе вверх к предкам рекурсивно
+        this.$emit('select', [index, ...event]);          
     },
 
 
-  close_open_handler(index) {
+    select_handler(index) {
 
 
+      console.log(index)
 
-      if (!this.openMap[index]) this.openMap[index] = true
-      else this.openMap[index] = !this.openMap[index]
 
-      this.openMap = {...this.openMap}
+       //Индекс выбранного элемента локально
+      this.selected =  (this.selected == index) ? -1 : index
+
+
+      // передаем индекс элемента, который был выбран 
+      this.$emit('select', [index])
+
 
     
-      //this.$forceUpdate() 
-   
-
-
-  }
-
+      // изменяем признак открытости ветки
+      const nodeState = this.openedMap[index]
+      Vue.set(this.openedMap, index, !nodeState)
 
   },
 
 
-data () {
+    selectedClass(index) {
+
+      
 
 
-    return {
+        //элемент считаем выделенным
+        if (index == this.selected && // если выделен локально
+          //и путь до элемента совпадает с текущим выделенным путем
+          JSON.stringify(this.selectedPath.slice(0, -1)) ==  JSON.stringify(this.indexPath)
+        )
 
-         openMap: {}
+        return {selected: true}
 
-        
     }
 
   },
 
+  data () {
 
+      return {
 
+          openedMap: {},
+          selected: -1,
+
+      }
+
+    },
 
 }
-
 
 </script>
 
 
 <style scoped>
+
 ul {
+
     display: flex;
-  list-style-type: none;
+    list-style-type: none;
     flex-direction: column;
-   align-items: flex-start;
-  padding: 0;
+    align-items: flex-start;
+    padding: 0;
 }
+
 li {
 
   position: relative;
   display: block;
-  margin: 5px 0px 5px 10px;
+  margin: 5px 0px 5px 5px;
   text-align: left;
   cursor: pointer;
  
 }
 
 .tree-wrapper {
+
   width: 100%;
+
 }
 
 
-.tree-item {
-  height: 35px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  box-shadow: 1px 1px 1px 1px #66666621;
+.directory {
+
+   background-color: #ffff0021;
+
 }
-
-
-.directory-item {
- background-color: #ffff0021;
-}
-
-
 
 .sub-tree {
+
   margin-left:30px;
   margin-top: 5px;
   margin-bottom: 5px;
+
 }
 
 .close-open {
+
   position: absolute;
   width: 100%;
   height: 100%;
   opacity: 0;
   cursor: pointer;
+
 }
 
-li:focus > .tree-item { 
+li:focus > div { 
   
-    outline: dotted pink 2px !important;
+    outline: dotted pink 3px !important;
 }
 
 li:focus {
   outline: none;
 }
-
 
 a {
   color: #42b983;

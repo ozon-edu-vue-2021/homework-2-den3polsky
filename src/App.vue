@@ -1,10 +1,16 @@
 <template>
   <div id="app">
 
-  <div class="nav"></div>
+  <div class="nav">{{ makePathFromIndexes }}</div>
 
-    <Directory :tree="tree" :level="0" />
+    <Directory :tree="tree" 
+               :selectedPath="path" 
+               :indexPath="[]" 
+               @select="showPath($event)" 
+    />
+
   </div>
+
 </template>
 
 <script>
@@ -14,21 +20,64 @@ import tree from '../public/static/node_modules.json'
 
 
 export default {
+
+
   name: 'App',
+  
   components: {
+
     Directory
   },
 
+  methods: {
+    
+    showPath(path) {
+
+      this.path = path
+
+    },
+
+  },
+
+  computed: {
+
+
+    //у нас есть путь до выранного элемента в индексном массиве path
+    //Из него строим текстовый вариант
+    
+    makePathFromIndexes() {
+     
+        const stringPath = []
+        let node = tree
+        this.path.forEach(index => {
+            stringPath.push(node.contents[index].name)
+            node = node.contents[index]
+        })
+    
+        return stringPath.join('/')
+    }
+
+  },
+
+
   data() {
+
     return {
-      tree
+
+      tree,
+      path: []
+
     }
   }
 }
+
 </script>
 
 <style>
+
+
 #app {
+
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -42,12 +91,27 @@ export default {
 .nav {
   
     top: 0px;
-    height: 50px;
-    background: white;
+    height: 40px;
+    background: #202020;
     border: 1px solid black;
     width: 100%;
-    position: fixed; 
+    position: fixed;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+    padding-left: 10px;
+}
+
+.directory, .file, .link {
+
+  height: 35px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-shadow: 1px 1px 1px 1px #66666621;
+
 }
 
 

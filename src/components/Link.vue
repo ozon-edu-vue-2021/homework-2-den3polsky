@@ -1,7 +1,9 @@
 <template>
-    <div class="tree-item link-item">
+    <div class="link">
          <LinkIcon/>
         <div class="link-name">{{name}}</div>
+        <div class="link-target">{{target}}</div>
+        
     </div>
 </template>
 
@@ -10,41 +12,25 @@
 
     import LinkIcon from '/src/components/icons/LinkIcon.vue'
 
-
     export default {
 
-    name: 'LinkItem',
+        name: 'LinkItem',
 
-    props: {
-        name: String,    
-    },
+        props: {
+            name: String,    
+            target: String,    
+        },
 
-    components: {
-        LinkIcon
-    },
-
-
-    methods: {
-
-    },
-
-    data () {
-
-     return {
-            
-        }
-
-    },
-
+        components: {
+            LinkIcon
+        },
 }
-
 </script>
 
 
 <style scoped>
 
-
-    .link-item  {
+    .link  {
 
         padding-left: 5px;
         background-color: #38ff0017;
@@ -55,12 +41,20 @@
         margin-left: 8px;
     }
 
-    li:focus > .link-item {
+    .selected {
 
         background-color: #67ff3c8f;
         outline: 2px solid #1c810017;
         border-radius: 5px;
        
     }
+
+    .link-target {
+        
+        justify-self: end;
+        margin-left: auto;
+        padding-right: 10px;
+    }
+
 
 </style>

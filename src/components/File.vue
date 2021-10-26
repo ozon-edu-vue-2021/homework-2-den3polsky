@@ -1,5 +1,5 @@
 <template>
-    <div class="tree-item file-item" >
+    <div class="file" >
          <FileIcon/>
         <div class="file-name">{{name}}</div>
     </div>
@@ -10,32 +10,17 @@
 
     import FileIcon from '/src/components/icons/FileIcon.vue'
 
-
     export default {
 
-    name: 'File',
+        name: 'File',
 
-    props: {
-        name: String,    
-    },
+        props: {
+            name: String,    
+        },
 
-    components: {
-        FileIcon
-    },
-
-
-    methods: {
-
-    },
-
-    data () {
-
-        return {
-            
-        }
-
-
-    },
+        components: {
+            FileIcon
+        },
 
 }
 
@@ -45,7 +30,7 @@
 <style scoped>
 
 
-    .file-item  {
+    .file {
 
         padding-left: 5px;
         background-color: #32cbff17;
@@ -56,7 +41,7 @@
         margin-left: 8px;
     }
 
-  li:focus > .file-item {
+     .selected {
 
         background-color: #1f70f7ad;
         outline: 2px solid #1818ffa8;
