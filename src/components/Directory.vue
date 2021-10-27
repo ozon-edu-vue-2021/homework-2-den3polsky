@@ -9,6 +9,7 @@
             @click.stop="select_handler(index)"
             @keydown.enter.stop="select_handler(index)"
             @keydown.space.prevent.stop="select_handler(index)"
+            @focus="focus_handler(index)"
         >
             <template v-if="item.type=='file'">
 
@@ -100,6 +101,13 @@ export default {
       Vue.set(this.openedMap, index, !nodeState)
 
   },
+
+    focus_handler(index) {
+
+       this.$emit('select', [index])
+       
+    },
+
 
 
     selectedClass(index) {
