@@ -4,7 +4,7 @@
 
         <li v-for="(item, index) in tree.contents" 
             :key="item.name + '-' + index"
-            :tabindex="index + 1"
+            tabindex="1"
             :autofocus="index==0"
             @click.stop="select_handler(index)"
             @keydown.enter.stop="select_handler(index)"
