@@ -25,13 +25,7 @@
 
             <div v-else class="directory"> 
 
-                <template v-if="openedMap[index]">
-                  <OpenFolderIcon/>
-                </template>
-
-                <template v-else>
-                    <CloseFolderIcon/>
-                </template>
+                <FolderIcon :isOpen="openedMap[index]" />
 
                 <div>{{item.name}}</div>
                   
@@ -58,8 +52,7 @@
 
 import Vue from 'vue'
 
-import CloseFolderIcon from '/src/components/icons/CloseFolderIcon.vue'
-import OpenFolderIcon from '/src/components/icons/OpenFolderIcon.vue'
+import FolderIcon from '/src/components/icons/FolderIcon.vue'
 
 import File from './File.vue'
 import Link from './Link.vue'
@@ -78,8 +71,7 @@ export default {
   
 
   components: {
-     OpenFolderIcon,
-     CloseFolderIcon,
+     FolderIcon,   
      File,
      Link
   },
