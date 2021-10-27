@@ -86,10 +86,6 @@ export default {
 
     select_handler(index) {
 
-
-      console.log(index)
-
-
        //Индекс выбранного элемента локально
       this.selected =  (this.selected == index) ? -1 : index
 
