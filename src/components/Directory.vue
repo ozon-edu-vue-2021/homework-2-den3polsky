@@ -8,6 +8,7 @@
             :autofocus="index==0"
             @click.stop="select_handler(index)"
             @keydown.enter.stop="select_handler(index)"
+            @keydown.space.prevent.stop="select_handler(index)"
         >
             <template v-if="item.type=='file'">
 
