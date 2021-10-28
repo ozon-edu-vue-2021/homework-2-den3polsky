@@ -1,9 +1,8 @@
 <template>
-    <div class="link">
+    <div class="link" tabindex="1">
          <LinkIcon/>
         <div class="link-name">{{name}}</div>
         <div class="link-target">{{target}}</div>
-        
     </div>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="file" >
+    <div class="file" tabindex="1" >
          <FileIcon/>
         <div class="file-name">{{name}}</div>
     </div>
@@ -21,7 +21,6 @@
         components: {
             FileIcon
         },
-
 }
 
 </script>

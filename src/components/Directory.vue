@@ -1,59 +1,57 @@
 <template>
 
-  <div class="tree-wrapper">
+      <div  class="directory"            
+            @click.stop="select_handler"
+            @keydown.enter.stop="select_handler"
+            @keydown.space.prevent.stop="select_handler"
+      > 
+          <div class="directory-item" tabindex="1" :autofocus="1" @focus="emitSelect">
 
-        <li v-for="(item, index) in tree.contents" 
-            :key="item.name + '-' + index"
-            tabindex="1"
-            :autofocus="index==0"
-            @click.stop="select_handler(index)"
-            @keydown.enter.stop="select_handler(index)"
-            @keydown.space.prevent.stop="select_handler(index)"
-            @focus="focus_handler(index)"
-        >
-            <template v-if="item.type=='file'">
+              <FolderIcon :isOpen="isOpen" />
+              <div class="directory-name">{{tree.name}}</div>
 
-               <File :name="item.name" :class="selectedClass(index)"  />
+          </div>
 
+          <template v-if="isOpen">
+
+                <div v-for="(item, index) in tree.contents" 
+                      class="sub-tree"
+                      :key="item.name + '-' + index"                   
+                      @click.stop="select_handler(index, item.type)"
+                      @keydown.enter.stop="select_handler(index, item.type)"
+                      @keydown.space.prevent.stop="select_handler(index, item.type)"
+                  >
+                      <template v-if="item.type=='file'">
+
+                          <File :name="item.name" :class="selectedClass(index)" @focus.native="emitSelect(index)" />
+
+                      </template>
+
+                      <template v-else-if="item.type=='link'">
+
+                          <Link :name="item.name" :class="selectedClass(index)" :target="item.target"  @focus.native="emitSelect(index)" />
+
+                      </template>                 
+
+                      <template v-else-if="item.type=='directory'">
+
+                          <Directory :tree="item" 
+                                      :indexPath="[...indexPath, index]"
+                                      :selectedPath="selectedPath"
+                                      @select="emitRecursive($event, index)" 
+                          />                          
+                      </template>
+
+                  </div>
             </template>
-
-            <template v-else-if="item.type=='link'">
-
-               <Link :name="item.name" :target="item.target" :class="selectedClass(index)"  />
-
-            </template>
-
-
-            <div v-else class="directory"> 
-
-                <FolderIcon :isOpen="openedMap[index]" />
-
-                <div>{{item.name}}</div>
-                  
-            </div>
-
-            <ul v-if="openedMap[index]  && item.type == 'directory'" class="sub-tree" >
-
-                <Directory :tree="item" 
-                           :indexPath="[...indexPath, index]"
-                           :selectedPath="selectedPath"
-                           @select="emitRecursive($event, index)" 
-                />
-
-            </ul>
-
-        </li>
-
-  </div>
+    </div>    
 
 </template>
 
 
 <script>
 
-import Vue from 'vue'
-
-import FolderIcon from '/src/components/icons/FolderIcon.vue'
+import FolderIcon from './icons/FolderIcon.vue'
 
 import File from './File.vue'
 import Link from './Link.vue'
@@ -70,8 +68,8 @@ export default {
 
   },
   
-
   components: {
+
      FolderIcon,   
      File,
      Link
@@ -84,43 +82,38 @@ export default {
         this.$emit('select', [index, ...event]);          
     },
 
+    select_handler(index, item_type) {
 
-    select_handler(index) {
+      // емит индекс элемента, который был выбран, вверх родителю
+      this.emitSelect(index)
 
-       //Индекс выбранного элемента локально
-      this.selected =  (this.selected == index) ? -1 : index
-
-
-      // передаем индекс элемента, который был выбран 
-      this.$emit('select', [index])
-
-
-    
       // изменяем признак открытости ветки
-      const nodeState = this.openedMap[index]
-      Vue.set(this.openedMap, index, !nodeState)
+      if (item_type != 'link' && item_type != 'file') {
 
+          this.isOpen = !this.isOpen    
+
+      }   else {
+
+          //Индекс выбранного элемента локально 
+          this.selected =  (this.selected == index) ? -1 : index
+      }
+      
   },
 
-    focus_handler(index) {
-
-       this.$emit('select', [index])
-       
+    emitSelect(index) {
+      
+       Number.isInteger(index) ?                                   
+            this.$emit('select', [index]) :
+                  this.$emit('select', [])
     },
 
-
-
     selectedClass(index) {
-
-      
-
 
         //элемент считаем выделенным
         if (index == this.selected && // если выделен локально
           //и путь до элемента совпадает с текущим выделенным путем
           JSON.stringify(this.selectedPath.slice(0, -1)) ==  JSON.stringify(this.indexPath)
         )
-
         return {selected: true}
 
     }
@@ -130,10 +123,9 @@ export default {
   data () {
 
       return {
-
-          openedMap: {},
+          
           selected: -1,
-
+          isOpen: false
       }
 
     },
@@ -145,22 +137,21 @@ export default {
 
 <style scoped>
 
-ul {
+div {
 
-    display: flex;
+   
     list-style-type: none;
-    flex-direction: column;
-    align-items: flex-start;
+    
     padding: 0;
 }
 
 li {
 
   position: relative;
-  display: block;
-  margin: 5px 0px 5px 5px;
+  width: 100%;
+ 
   text-align: left;
-  cursor: pointer;
+  margin: 5px 0px 5px 5px;
  
 }
 
@@ -173,16 +164,30 @@ li {
 
 .directory {
 
-   background-color: #ffff0021;
+   
+   width: 100%;
+   cursor: pointer;
+  display: block;
 
 }
 
-.sub-tree {
+.directory-item {
 
+  background-color: #ffff0021;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.directory-name {
+  width: 100%;
+  text-align: left;
+}
+
+.sub-tree {
   margin-left:30px;
   margin-top: 5px;
-  margin-bottom: 5px;
-
+  margin-bottom: 5px;  
 }
 
 .close-open {
@@ -195,14 +200,6 @@ li {
 
 }
 
-li:focus > div { 
-  
-    outline: dotted pink 3px !important;
-}
-
-li:focus {
-  outline: none;
-}
 
 a {
   color: #42b983;

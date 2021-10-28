@@ -1,13 +1,17 @@
 <template>
   <div id="app">
 
-  <div class="nav">{{ makePathFromIndexes }}</div>
+      <div class="nav">{{ makePathFromIndexes}}</div>
 
-    <Directory :tree="tree" 
-               :selectedPath="path" 
-               :indexPath="[]" 
-               @select="showPath($event)" 
-    />
+      <div class="directory-wrapper">
+
+        <Directory :tree="tree" 
+                  :selectedPath="path" 
+                  :indexPath="[]" 
+                  @select="showPath($event)" 
+        />
+
+      </div>
 
   </div>
 
@@ -20,7 +24,6 @@ import tree from '../public/static/node_modules.json'
 
 
 export default {
-
 
   name: 'App',
   
@@ -41,13 +44,12 @@ export default {
 
   computed: {
 
-
     //у нас есть путь до выранного элемента в индексном массиве path
     //Из него строим текстовый вариант
     
     makePathFromIndexes() {
      
-        const stringPath = []
+        const stringPath = [tree.name]
         let node = tree
         this.path.forEach(index => {
             stringPath.push(node.contents[index].name)
@@ -84,8 +86,11 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-  width: 50%;
- 
+  width: 100%;
+}
+
+.directory-wrapper {
+  max-width: 45%;
 }
 
 .nav {
@@ -105,13 +110,18 @@ export default {
 }
 
 .directory, .file, .link {
-
-  height: 35px;
+  
+  min-height: 35px;
   display: flex;
   flex-direction: row;
   align-items: center;
   box-shadow: 1px 1px 1px 1px #66666621;
 
+}
+
+.directory-item:focus, .file:focus, .link:focus { 
+  
+    outline: dotted pink 3px !important;
 }
 
 
